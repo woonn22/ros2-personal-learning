@@ -1,0 +1,17 @@
+# ROS 2 build files
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Editor
+.vscode/
+.idea/
+
+# System
+.DS_Store
