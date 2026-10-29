@@ -24,6 +24,10 @@ setup(
     },
     entry_points={
         'console_scripts': [
+	    'robot_node = robot_basics.robot_node:main',
+	    'monitor_node = robot_basics.monitor_node:main',
+        'service_node = robot_basics.service_node:main',
+        'client_node = robot_basics.client_node:main',
         ],
     },
 )
