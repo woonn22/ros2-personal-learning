@@ -27,6 +27,8 @@ class RobotServiceNode(Node):
         self.job_queue.append(j)
         self.get_logger().info(f'Request {j} Received')
 
+        time.sleep(5.0)
+
         response.success = True
         response.message = f'Job {j} Accepted'
         return response

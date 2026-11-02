@@ -21,6 +21,9 @@ class RobotClientNode(Node):
 
         self.pending_future = None
 
+        self.request_start_time = None
+        self.timeout_sec=3.0
+
     def result_callback(self,msg):
         self.get_logger().info(f'Topic received: {msg.data}')
 
@@ -35,7 +38,21 @@ class RobotClientNode(Node):
             return
         if ( self.pending_future is not None and not self.pending_future.done()):
 
-            self.get_logger().info( 'Previous service request is still pending')
+            elapsed = time.monotonic() - self.request_start_time
+
+            if elapsed >= self.timeout_sec:
+                self.get_logger().error(
+                    f'Service timeout: {elapsed:.1f}s'
+                )
+
+                self.client.remove_pending_request(self.pending_future)
+                self.pending_future = None
+                self.request_start_time = None
+            else :
+                self.get_logger().info(
+                    'Previous service request is still pending'
+                )
+
             return
     
         if (not self.client.service_is_ready()):
@@ -46,7 +63,6 @@ class RobotClientNode(Node):
 
         request = Trigger.Request()
 
-        self.pending_future = self.client.call_async(request)
         #future.add_done_callback(self.response_callback)
 
         self.request_number = self.sent_count
@@ -55,8 +71,11 @@ class RobotClientNode(Node):
 
         #future.add_done_callback(lambda completed_future, number=request_number: self.response_callback(completed_future, number))
         
+        #self.pending_future = self.client.call_async(request)
+        #self.pending_future.add_done_callback(self.response_callback)
+        self.request_start_time = time.monotonic()
+        self.pending_future = self.client.call_async(request)
         self.pending_future.add_done_callback(self.response_callback)
-
 
     def response_callback(self,future):
         try:
